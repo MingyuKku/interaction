@@ -5,6 +5,7 @@ import Section3 from './components/Section3';
 import TextVisual from './components/text/Visual';
 import IntersectSection from './components/intersect/Section';
 import IntersectSection2 from './components/intersect/Section2';
+import ScrollAnimationFrame from './components/scroll-animation/Frame';
 
 const App = () => {
 
@@ -14,7 +15,7 @@ const App = () => {
 
     const section1RatioController = {
         minMax: [0, 1],
-        points: [0.4, 0.8]
+        points: [0.35, 1]
     }
     const [ section1Ratio, setSection1Ratio ] = React.useState(0);
 
@@ -35,6 +36,10 @@ const App = () => {
             const { offsetTop: section3ElemTop, offsetHeight: section3ElemHeight } = section3Elem.current;
 
 
+            const clearAllRatio = () => {
+                setSection1Ratio(0);
+            }
+
             const isIntersectSection = (sectionTop: number, sectionHeight: number) => {
                 const sectionBottom = sectionTop + sectionHeight;
                 const { scrollY, innerHeight } = window;
@@ -54,10 +59,10 @@ const App = () => {
                 const offsetScrollY = (scrollY+innerHeight) - sectionTop;
 
                 let ratio = offsetScrollY / sectionHeight;
-                const timeRatio = offsetScrollY / (sectionHeight + innerHeight);
-                if (timeRatio < points[0]) ratio = 0;
-                if (timeRatio > points[1]) ratio = 0;
-                console.log('비율', text, ratio * (minMax[1] - minMax[0]))
+                const timeRatio = offsetScrollY / (sectionHeight + innerHeight); // 애니메이션 프레임을 0~1사이의 값으로
+                if (timeRatio < points[0]) ratio = minMax[0]; // points[0]은 프레임 시작 지점 => 시작 지점 전에는 ratio값을 min으로
+                if (timeRatio > points[1]) ratio = minMax[1]; // points[1]은 프레임 종료 지점 => 종료 지점 후에는 ratio값을 max으로
+                // console.log('비율', text, ratio * (minMax[1] - minMax[0]))
 
                 return ratio * (minMax[1] - minMax[0]);
             }
@@ -66,6 +71,7 @@ const App = () => {
             if (isIntersectSection(section1ElemTop, section1ElemHeight)) {
                 // console.log('섹션 1 ratio', calculateRatio(section1ElemTop, section1ElemHeight))
                 setSection1Ratio(calculateRatio(section1ElemTop, section1ElemHeight, section1RatioController.minMax, section1RatioController.points, '섹션1'));
+                return;
             }
 
 
@@ -78,6 +84,7 @@ const App = () => {
                 // console.log('섹션 3 ratio', calculateRatio(section3ElemTop, section3ElemHeight))
             }
             
+            // clearAllRatio();
         }
 
         // scrollWindow();
@@ -90,7 +97,8 @@ const App = () => {
 
     return (
         <div>
-            <div className="visual">
+            <ScrollAnimationFrame />
+            {/* <div className="visual">
                 <div className='image'>
                     <img src="https://cdn.pixabay.com/photo/2016/10/22/01/54/wood-1759566_1280.jpg" alt="bg" />
                 </div>
@@ -105,9 +113,7 @@ const App = () => {
             <Section3
                 elemRef={ section3Elem }
             />
-            <TextVisual ratio={ section1Ratio } />
-            {/* <IntersectSection />
-            <IntersectSection2 /> */}
+            <TextVisual ratio={ section1Ratio } /> */}
         </div>
     )
 }

@@ -19,6 +19,10 @@ code {
   align-items: center;
   justify-content: center;
 }
+.image {
+  width: 100%;
+  height: 100%;
+}
 .image img {
   width: 100%;
   height: 100%;
@@ -50,4 +54,11 @@ code {
   font-size: 42px;
   font-weight: bold;
   color: dodgerblue;
+}
+.center-h {
+  font-size: 38px;
+  font-weight: bold;
+  width: 60vw;
+  margin: 0 auto;
+  text-align: center;
 }

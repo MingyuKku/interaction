@@ -6,15 +6,11 @@ interface Props {
 
 const Visual: React.FC<Props> = ({ ratio }) => {
 
-    const ratioController = {
-        minMax: [0, 1],
-        points: [0.4, 0.8]
-    }
-
     const injectionStyle = React.useMemo<React.CSSProperties>(() => {
-        // console.log('레티오', ratio)
+        console.log('레티오', ratio)
         return {
-            'opacity': ratio
+            'opacity': ratio,
+            'transition': ratio === 0 ? 'opacity .25s ease-in-out' : undefined
         }
     }, [ratio])
 
