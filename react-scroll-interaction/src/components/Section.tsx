@@ -1,71 +1,134 @@
 import React from 'react'
-import { SECTION } from '../constants'
+import { FrameInfo, SectionInfo } from './scroll-animation/_types';
 
-interface Props {
-    elemRef: React.RefObject<HTMLDivElement>;
-    ratio: number;
-}
+const Section = () => {
 
-// const Section: React.FC<Props> = ({ scrollElem, scrollHeight, scrollHeightRatio }) => {
-const Section: React.FC<Props> = ({ elemRef, ratio }) => {
-
-    
-    const [ scrollObj, setScrollObj ] = React.useState<{
-        scrollHeight: number;
-        heightRatio: number;
-    }>({
-        scrollHeight: 0,
+    const sectionInfo: SectionInfo = {
+        color: '#45616c',
         heightRatio: 2,
-    })
+        opacity: {
+            in: {
+                min: 0,
+                max: 1,
+                start: 0,
+                end: 0.5,
+            },
+            out: {
+                min: 1,
+                max: 0,
+                start: 0.5,
+                end: 1,
+            }
+        }
+    }
+    const elem = React.useRef<HTMLDivElement>(null);
+    const intersector = React.useRef<IntersectionObserver | null>(null); 
+    const [ scrollHeight, setScrollHeight ] = React.useState(0);
+    const [ opacity, setOpacity ] = React.useState(0);
 
 
-    const init = () => {
-        setScrollObj({
-            ...scrollObj,
-            scrollHeight: window.innerHeight * scrollObj.heightRatio,
-        })
+    const intersectOption: IntersectionObserverInit = {
+        root: null,
+        threshold: 0,
     }
 
 
-    React.useEffect(() => {
-        
-    }, [ratio])
+    const calcRatio = (start: number, end: number, min: number, max: number, setRatio: React.Dispatch<React.SetStateAction<number>>,) => {
+        if (!window) return;
+        if (!elem.current) return;
 
-    const stylePara = React.useMemo<React.CSSProperties>(() => {
-        // console.log('호잇', ratio, 50 * ratio)
-        return {
-            'transform': `translate(-50%, ${ -50 * ratio }%) scale(${ratio + 0.8})`,
-            'opacity': ratio > 0.5 ? ratio : 0,
-            'transition': ratio <= 0.5 ? `opacity .3s ease-in-out` : undefined,
+        const { scrollY } = window;
+        const { scrollHeight, offsetTop } = elem.current;
+        const sectionStart = offsetTop + (scrollHeight * start);
+        const sectionEnd = offsetTop + (scrollHeight * end);
+        
+        const scrollRatio = (scrollY - sectionStart) / (sectionEnd - sectionStart);
+        setRatio(min + scrollRatio * (max - min));
+    }
+
+
+    const calcAnimationFrame = (frameInfo: FrameInfo ,setRatio: React.Dispatch<React.SetStateAction<number>>) => {
+        if (!window) return;
+        if (!elem.current) return;
+
+        const { scrollY } = window;
+        const { scrollHeight, offsetTop } = elem.current;
+
+        const sectionScrollRatio = scrollY / (offsetTop + scrollHeight);
+        // console.log('호잇', sectionScrollRatio)
+        const { start: inStart, end: inEnd, max: inMax, min: inMin } = frameInfo.in;
+        // const { start: outStart, end: outEnd, max: outMax, min: outMin } = sectionInfo.opacity.out;
+        
+        calcRatio(
+            inStart,
+            inEnd,
+            inMin,
+            inMax,
+            setRatio,
+        );
+
+        if (!frameInfo.out) return;
+
+        const { start: outStart, end: outEnd, max: outMax, min: outMin } = frameInfo.out;
+        if (sectionScrollRatio >= outStart) {
+            calcRatio(
+                outStart,
+                outEnd,
+                outMin,
+                outMax,
+                setRatio,
+            );
         }
-    }, [ratio])
+        
+    }
 
+
+    const scrollWindow = () => {
+        
+        if (sectionInfo.opacity) {
+            calcAnimationFrame(sectionInfo.opacity, setOpacity);
+        }
+
+    }
+
+
+    const intersectionCallback: IntersectionObserverCallback = (entries) => {
+        for (const entrie of entries) {
+            if (entrie.isIntersecting) {
+                window.addEventListener('scroll', scrollWindow)
+            } else {
+                window.removeEventListener('scroll', scrollWindow)
+            }
+        }
+    }
 
     React.useEffect(() => {
-        if (!window || !elemRef.current) return;
-        
-        init();
-        
+        if (!window || !elem.current) return;
 
+        setScrollHeight(window.innerHeight * sectionInfo.heightRatio);
+
+        intersector.current = new IntersectionObserver(intersectionCallback, intersectOption);
+        intersector.current.observe(elem.current);
         return () => {
-
+            intersector.current?.disconnect();
+            window.removeEventListener('scroll', scrollWindow)
         }
     }, [])
 
     return (
         <div
-            ref={ elemRef }
+            ref={ elem }
             style={{
-                'height': scrollObj.scrollHeight
+                'backgroundColor': sectionInfo.color,
+                'height': scrollHeight
             }}
-            className='section'
         >
-            {/* <p
-                className='text-p'
-                style={ stylePara }
-            >
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Saepe vero atque sed modi quisquam sunt dignissimos cupiditate animi! Libero qui reprehenderit minima veniam! Libero quidem laborum eaque quos alias qui.
-            </p> */}
+            <p
+                className='center-h'
+                style={{
+                    'opacity': opacity
+                }}
+            >Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
         </div>
     )
 }

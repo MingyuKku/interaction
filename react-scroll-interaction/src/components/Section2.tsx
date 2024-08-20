@@ -1,9 +1,9 @@
 import React from 'react'
 
-const Section3 = () => {
+const Section2 = () => {
 
     const sectionInfo = {
-        color: '#e4e6e6',
+        color: '#9fc4d6',
         heightRatio: 2,
     }
     const [ scrollHeight, setScrollHeight ] = React.useState(0);
@@ -27,4 +27,4 @@ const Section3 = () => {
     )
 }
 
-export default Section3
+export default Section2

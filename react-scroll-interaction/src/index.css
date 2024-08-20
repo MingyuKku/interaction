@@ -56,9 +56,11 @@ code {
   color: dodgerblue;
 }
 .center-h {
+  position: fixed;
   font-size: 38px;
   font-weight: bold;
   width: 60vw;
-  margin: 0 auto;
+  left: 50%;
+  transform: translate(-50%,0);
   text-align: center;
 }

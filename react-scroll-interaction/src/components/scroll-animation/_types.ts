@@ -31,3 +31,21 @@ interface FrameValue {
     startEnd: number[];
     value: number;
 }
+
+export interface SectionInfo {
+    color: string;
+    heightRatio: number;
+    opacity?: FrameInfo;
+    translate?: FrameInfo;
+}
+
+export interface FrameInfo {
+    in: AnimationInfo;
+    out?: AnimationInfo;
+}
+interface AnimationInfo {
+    min: number;
+    max: number;
+    start: number;
+    end: number;
+}
